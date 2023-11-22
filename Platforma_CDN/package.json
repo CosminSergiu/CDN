@@ -6,6 +6,8 @@
     "flat-cache": "^3.2.0",
     "http": "^0.0.1-security",
     "http-proxy": "^1.18.1",
-    "node-cache": "^5.1.2"
+    "ioredis": "^5.3.2",
+    "node-cache": "^5.1.2",
+    "redis": "^4.6.11"
   }
 }

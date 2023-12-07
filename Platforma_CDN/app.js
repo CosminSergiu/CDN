@@ -22,7 +22,7 @@ function gracefulShutdown(signal) {
   });
 }
 
-// Ascultă pentru evenimentele de închidere
+// inchide baza de date
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('uncaughtException', (err) => {
@@ -40,7 +40,7 @@ const server = http.createServer((req, res) => {
     }
   });
   
-  // Verifica daca clientul acceptă compresia gzip
+  // verific daca se acepta gzip pe resurse
   const acceptEncoding = req.headers['accept-encoding'];
   const canGzip = acceptEncoding && acceptEncoding.includes('gzip');
 
@@ -54,7 +54,7 @@ const server = http.createServer((req, res) => {
         let buffer = Buffer.from(cachedData, 'base64');
         if(canGzip){
 
-          res.writeHead(200, { 'Cache-Control': `public, max-age=${cacheTime}`, 'Content-Encoding': 'gzip'});
+          res.writeHead(200, { 'Cache-Control': `public, max-age=${cacheTime}`, 'Content-Encoding': 'gzip'}); //header de cache si de comprimare
           
           zlib.gzip(buffer, (err, gzipData) => {
             if (err) {
@@ -78,7 +78,7 @@ const server = http.createServer((req, res) => {
           });
           proxyRes.on('end', function() {
             const data = Buffer.concat(body).toString('base64');
-            client.set(req.url, data, 'EX', 3600); // Stocarea datelor în Redis cu expirare
+            client.set(req.url, data, 'EX', cacheTime); // stocare cache in redis cu expirare
             console.log("Am stocat in bd");
             if (!res.finished) {
               res.writeHead(proxyRes.statusCode, { ...proxyRes.headers, 'Cache-Control': `public, max-age=${cacheTime}` }); 
